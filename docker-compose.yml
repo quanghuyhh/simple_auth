@@ -1,0 +1,73 @@
+version: '3'
+
+networks:
+  auth:
+
+services:
+  site:
+    build:
+      context: ./dockerfiles
+      dockerfile: nginx.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    container_name: auth_nginx
+    ports:
+      - ${APP_PORT:-8081}:80
+    volumes:
+      - ./:/var/www/html:delegated
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - auth
+
+  mysql:
+    image: mariadb:10.6
+    container_name: auth_mysql
+    restart: unless-stopped
+    tty: true
+    volumes:
+      - ./dockerfiles/mysql/init.sql:/docker-entrypoint-initdb.d/dump.sql
+    ports:
+      - ${MYSQL_PORT:-33067}:3306
+    environment:
+      MYSQL_DATABASE: homestead
+      MYSQL_USER: homestead
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - auth
+
+  php:
+    build:
+      context: ./dockerfiles
+      dockerfile: php.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    container_name: auth_php
+    volumes:
+      - ./:/var/www/html:delegated
+    networks:
+      - auth
+
+  composer:
+    build:
+      context: ./dockerfiles
+      dockerfile: composer.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${GID:-1000}
+    container_name: auth_composer
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - php
+    user: laravel
+    entrypoint: ['composer', 'install', '--ignore-platform-reqs']
+    networks:
+      - auth
