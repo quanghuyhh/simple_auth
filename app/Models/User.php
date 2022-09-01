@@ -8,16 +8,18 @@ class User extends BaseModel
 {
     public function preInsert(array &$data)
     {
-        if (Arr::has($data, 'password') && !empty($data['password'])) {
-            $data['password'] = encrypt($data['password']);
-        } else {
-            unset($data['password']);
-        }
+        $this->preparePassword($data);
+        parent::preInsert($data);
     }
 
     public function preUpdate(array &$data)
     {
-        if (Arr::has($data, 'password') && !empty($data['password'])) {
+        $this->preparePassword($data);
+    }
+
+    public function preparePassword(array &$data)
+    {
+        if (Arr::has($data, 'password') && !empty($data['password']) && !hashed($data['password'])) {
             $data['password'] = encrypt($data['password']);
         } else {
             unset($data['password']);

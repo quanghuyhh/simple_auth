@@ -19,6 +19,7 @@ services:
     depends_on:
       - php
       - mysql
+      - nuxt
     networks:
       - auth
 
@@ -69,5 +70,22 @@ services:
       - php
     user: laravel
     entrypoint: ['composer', 'install', '--ignore-platform-reqs']
+    networks:
+      - auth
+
+  nuxt:
+    build:
+      context: ./
+      dockerfile: dockerfiles/nuxt.dockerfile
+    container_name: auth_frontend
+    restart: always
+    env_file: .env.docker
+#    volumes:
+#      - ./frontend:/usr/src/app
+#      - ./frontend/node_modules:/usr/src/app/node_modules
+    working_dir: /usr/src/app
+    ports:
+      - ${FRONTEND_PORT:-5000}:5000
+#    command: "npm run start"
     networks:
       - auth

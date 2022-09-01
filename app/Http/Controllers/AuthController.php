@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Common\SimpleOrm;
 use App\Core\Hash;
+use App\Core\JWT;
+use App\Core\Response;
 use App\Models\User;
 
 class AuthController extends BaseController
@@ -34,14 +36,14 @@ class AuthController extends BaseController
             if ($params['password'] !== $params['confirm_password']) {
                 throw new \Exception("Password and confirmation password not match!");
             }
+
             $user = new User();
             $user->fill($this->request->all());
             $user->save();
-            flash('Create account successfully!')->success()->important();
-            redirect('/auth/login');
+
+            response([], Response::HTTP_OK, 'Create account successfully!')->json();
         } catch (\Throwable $throwable) {
-            flash($throwable->getMessage())->error()->important();
-            back();
+            response([], Response::HTTP_BAD_REQUEST, $throwable->getMessage())->json();
         }
     }
 
@@ -57,12 +59,13 @@ class AuthController extends BaseController
             if (!Hash::check($params['password'], $user->password)) {
                 throw new \Exception('Invalid username or password');
             }
-            session(['user' => $user->toArray()]);
-            flash('Login successfully!')->success()->important();
-            redirect('/');
+
+            response([
+                'user' => $user->toArray(),
+                'token' => JWT::encode($user->toArray())
+            ], Response::HTTP_OK, 'Login successfully!')->json();
         } catch (\Throwable $throwable) {
-            flash($throwable->getMessage())->error()->important();
-            back();
+            response([], Response::HTTP_BAD_REQUEST, $throwable->getMessage())->json();
         }
     }
 }

@@ -2,6 +2,8 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 
+error_reporting(0);
+
 (new App\Service\LoadEnvironmentVariables(
     dirname(__DIR__)
 ))->bootstrap();
