@@ -3,9 +3,16 @@
 namespace App\Models;
 
 use App\Common\SimpleOrm;
+use App\Helpers\Str;
+use Ramsey\Uuid\Uuid;
 
 class BaseModel extends SimpleOrm
 {
+    public function preInsert(array &$data)
+    {
+        $data['hash_id'] = Uuid::uuid4();
+    }
+
     public function fill($params): static
     {
         foreach ($params as $key => $value) {

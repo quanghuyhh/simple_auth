@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\JWT;
+use App\Core\Response;
 use App\Helpers\Arr;
 use App\Models\User;
+use Throwable;
 
 class HomeController extends BaseController
 {
@@ -16,10 +19,9 @@ class HomeController extends BaseController
     {
         try {
             $user = User::findOrFail(auth()['id']);
-            echo view('profile', ['user' => $user]);
-        } catch (\Throwable $throwable) {
-            flash($throwable->getMessage())->error()->important();
-            redirect('/');
+            response(['user' => $user], Response::HTTP_OK)->json();
+        } catch (Throwable $throwable) {
+            response([], Response::HTTP_BAD_REQUEST, $throwable->getMessage())->json();
         }
     }
 
@@ -34,11 +36,10 @@ class HomeController extends BaseController
             $user = User::findOrFail(auth()['id']);
             $user->fill($params);
             $user->save();
-            flash('Updated profile successfully!')->success()->important();
-            redirect('/my-profile');
-        } catch (\Throwable $throwable) {
-            flash($throwable->getMessage())->error()->important();
-            back();
+
+            response(['user' => $user], Response::HTTP_OK, 'Updated profile successfully!')->json();
+        } catch (Throwable $throwable) {
+            response(['user' => $user], Response::HTTP_BAD_REQUEST, $throwable->getMessage())->json();
         }
     }
 }

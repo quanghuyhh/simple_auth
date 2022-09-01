@@ -1,8 +1,11 @@
 <?php
 
 use App\Core\Env;
+use App\Core\Request;
+use App\Core\Response;
 use App\Helpers\Arr;
 use App\Core\Application;
+use App\Helpers\Auth;
 use App\Helpers\FlashMessage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -143,6 +146,21 @@ if (! function_exists('encrypt')) {
     }
 }
 
+if (! function_exists('hashed')) {
+    /**
+     * @param string|null $hash
+     * @return bool
+     */
+    function hashed(string $hash = null): bool
+    {
+        if (preg_match("/^([a-f0-9]{64})$/", $hash) == 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 if (! function_exists('session')) {
     /**
      * Get / set the specified session value.
@@ -181,7 +199,7 @@ if (! function_exists('auth')) {
      */
     function auth()
     {
-        return session('user');
+        return Auth::getAuth();
     }
 }
 
@@ -255,4 +273,28 @@ if (! function_exists('upload_image')) {
     }
 }
 
+if (! function_exists('request')) {
+
+    /**
+     * @return Request
+     */
+    function request(): Request
+    {
+        return Request::capture();
+    }
+}
+
+if (! function_exists('response')) {
+
+    /**
+     * @param array $data
+     * @param int $status
+     * @param string|null $message
+     * @return Response
+     */
+    function response(array $data = [], int $status = 200, string $message = null): Response
+    {
+        return (new Response($data, $status, $message));
+    }
+}
 
