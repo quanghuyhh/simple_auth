@@ -1,9 +1,18 @@
 # Demo
-https://user-images.githubusercontent.com/97576662/187344934-3eb7672b-4c38-490c-bc82-d3fc39c57c1e.mp4
+https://user-images.githubusercontent.com/3841068/187868579-7a9a5286-90ef-4267-a4b2-999201b4fec0.mp4
 
 # Run project
 ```
 docker-composer up -d --build
+```
+- Frontend:
+```
+http://localhost:8081/admin
+```
+
+- API
+```
+http://localhost:8081/api
 ```
 
 # Thirds party
